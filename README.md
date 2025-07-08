@@ -1,1 +1,4 @@
-#dotfiles repo
+# dotfiles repo
+
+## emacs configuration
+inti.el file
