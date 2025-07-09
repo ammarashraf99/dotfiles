@@ -1,4 +1,7 @@
 # dotfiles repo
 
-## emacs configuration
+## emacs configs
 inti.el file
+
+## tmux configs
+.tmux.conf file
