@@ -66,14 +66,8 @@
 ;; Revert Buffer
 (global-set-key (kbd "C-x g r") 'revert-buffer-quick)
 
-
-
-
-
-
-
-
-
+;; increment number at point
+(global-set-key (kbd "C-a") 'increment-number-at-point)
 
 
 ;;(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
@@ -462,8 +456,9 @@
   (evil-collection-define-key 'normal 'dired-mode-map
     "H" 'dired-hide-dotfiles-mode))
 
-(global-set-key (kbd "C-a") nil)
-(global-set-key (kbd "C-a c") 'dired-create-empty-file)
+;;(global-set-key (kbd "C-a") nil)
+(global-set-key (kbd "C-x a a") 'dired-create-empty-file)
+
 
 ;; usefull shit
 ;; mark a file by "m"
@@ -711,7 +706,6 @@
 
 ;;(set-face-attribute 'flymake-warning nil :underline nil)
 ;;(set-face-attribute 'flymake-note nil :underline nil)
-
 
 
 
