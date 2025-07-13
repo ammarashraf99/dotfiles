@@ -70,14 +70,29 @@
 (global-set-key (kbd "C-a") 'increment-number-at-point)
 
 
-;;(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+;;; Themes shit
+
+;; (use-package almost-mono-themes
+;;   :config
+;;   ;; (load-theme 'almost-mono-black t)
+;;   ;; (load-theme 'almost-mono-gray t)
+;;   ;; (load-theme 'almost-mono-cream t)
+;;   (load-theme 'almost-mono-black t))
+
 ;; my favorite themes
 ;; [nork]=darktooth=doom-nord-aurora=creamsody=immaterial-dark=inverse-acme=kosmos=
 ;; labburn=mustang=doom-plain-dark=warm-night=gruber-darker
-
 ;;(set-background-color "SlateGrey")
 ;;(load-theme 'immaterial-dark t)
+
+;; Put the main theme file almost-mono-themes.el in your load path
+(add-to-list 'load-path "~/.emacs.d/elisp")
+(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+(mapc #'disable-theme custom-enabled-themes)
+
 (load-theme 'nord t)
+;; almost-mono-gray almost-mono-black
+;; nord subdued
 ;; nord gruber-darker mustang
 ;;flatland gruber-darker zenburn gruvbox-dark-medium  subdued  twilight 
 
@@ -725,7 +740,9 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   '("5a4cdc4365122d1a17a7ad93b6e3370ffe95db87ed17a38a94713f6ffe0d8ceb"
+   '("8f5b54bf6a36fe1c138219960dd324aad8ab1f62f543bed73ef5ad60956e36ae"
+     "23e9480ad7fd68bff64f6ecf3c31719c7fe2a34c11f8e27206cd998739f40c84"
+     "5a4cdc4365122d1a17a7ad93b6e3370ffe95db87ed17a38a94713f6ffe0d8ceb"
      default))
  '(package-selected-packages nil))
 (custom-set-faces
