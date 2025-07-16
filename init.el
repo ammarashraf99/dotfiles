@@ -90,9 +90,9 @@
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
 (mapc #'disable-theme custom-enabled-themes)
 
-(load-theme 'nord t)
+(load-theme 'gruber-darker t)
 ;; almost-mono-gray almost-mono-black
-;; nord subdued
+;; nord
 ;; nord gruber-darker mustang
 ;;flatland gruber-darker zenburn gruvbox-dark-medium  subdued  twilight 
 
@@ -482,7 +482,8 @@
 ;; mark file/s and hit "K", that will kill a file (make it disappear temp), and refresh with "g-r" to get them back
 ;; Copy a file (or marked file/s) with "C"
 ;; Rename with "R" (rename is as move)
-
+;; If you rename or make a new file with a name that is similar to an existing one it will force you to pick one of the
+;; existing ones, you can write (Ctrl + Alt + j) to force the name that you only wrote.
 
 
 
