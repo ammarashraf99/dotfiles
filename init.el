@@ -86,10 +86,10 @@
 ;;(load-theme 'immaterial-dark t)
 
 ;; Put the main theme file almost-mono-themes.el in your load path
-(add-to-list 'load-path "~/.emacs.d/elisp")
-(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
-(mapc #'disable-theme custom-enabled-themes)
+;;(add-to-list 'load-path "~/.emacs.d/elisp")
+;;(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
 
+(mapc #'disable-theme custom-enabled-themes)
 (load-theme 'gruber-darker t)
 ;; almost-mono-gray almost-mono-black
 ;; nord
@@ -587,6 +587,10 @@
   (yas-global-mode))
 
 
+(setq lsp-clients-clangd-executable "/usr/bin/clangd-19")
+
+(executable-find "clangd")
+
 ;; Clangd notes
 ;; you can add compile flags to clangd
 ;; go to ~/.config/clangd/config.yaml
@@ -639,6 +643,12 @@
 ;;   "-I/usr/local/include/c++/13.4.0/x86_64-pc-linux-gnu",
 ;;   "-L/usr/local/lib/gcc/x86_64-pc-linux-gnu/13.4.0"]
 
+
+;; the order of the -I is important..
+;; echo | g++-15 -v -x c++ -E -
+;; use this command to know the includes that g++-15 uses, or any other version.
+;; run clang++ -v test.cpp to see exactly what include paths it uses, then
+;; use that as a reference to tune your config.yaml
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
