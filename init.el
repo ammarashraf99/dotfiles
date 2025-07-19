@@ -57,8 +57,26 @@
 (global-set-key (kbd "C--") 'text-scale-decrease)
 
 
-;; Comment line
-(global-set-key (kbd "C-x c") 'comment-line)
+
+
+;; Comment line function
+;;this shit is good, you comment lines or regions with one command without
+;;commenting the following line.
+(defun my/comment-or-uncomment ()
+  "Comment or uncomment current line or region exactly."
+  (interactive)
+  (let (beg end)
+    (if (use-region-p)
+        ;; Region is active: use exact region
+        (setq beg (region-beginning)
+              end (region-end))
+      ;; No region: use the current line
+      (setq beg (line-beginning-position)
+            end (line-end-position)))
+    (comment-or-uncomment-region beg end)))
+;;the key binding for the function
+(global-set-key (kbd "C-x c") 'my/comment-or-uncomment)
+
 
 ;; Compile
 (global-set-key (kbd "M-c") 'compile)
@@ -559,7 +577,7 @@
 (setq lsp-enable-on-type-formatting nil)
 (setq lsp-modeline-diagnostics-enable nil)
 (setq lsp-diagnostics-provider :auto)
-(setq flycheck-check-syntax-automatically '(save)) ;; don't forget to install flycheck package
+(setq flycheck-check-syntax-automatically '(idle-change)) ;; don't forget to install flycheck package
 
 
 
@@ -586,10 +604,6 @@
   (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
   (yas-global-mode))
 
-
-(setq lsp-clients-clangd-executable "/usr/bin/clangd-19")
-
-(executable-find "clangd")
 
 ;; Clangd notes
 ;; you can add compile flags to clangd
@@ -752,10 +766,14 @@
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
    '("8f5b54bf6a36fe1c138219960dd324aad8ab1f62f543bed73ef5ad60956e36ae"
-     "23e9480ad7fd68bff64f6ecf3c31719c7fe2a34c11f8e27206cd998739f40c84"
-     "5a4cdc4365122d1a17a7ad93b6e3370ffe95db87ed17a38a94713f6ffe0d8ceb"
-     default))
- '(package-selected-packages nil))
+	 "23e9480ad7fd68bff64f6ecf3c31719c7fe2a34c11f8e27206cd998739f40c84"
+	 "5a4cdc4365122d1a17a7ad93b6e3370ffe95db87ed17a38a94713f6ffe0d8ceb"
+	 default))
+ '(package-selected-packages
+   '(blacken command-log-mode company counsel dap-mode
+			 dired-hide-dotfiles doom-modeline evil-collection general
+			 gruber-darker-theme helpful ivy-rich lsp-ui nord-theme
+			 pyvenv use-package vterm-toggle yasnippet)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
