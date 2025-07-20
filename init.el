@@ -155,13 +155,6 @@
   (add-hook mode (lambda () (global-hl-line-mode 0))))
 
 
-
-
-
-
-
-
-
 ;; Disable line numbers for some modes
 (dolist (mode '(org-mode-hook
 		term-mode-hook
@@ -203,9 +196,9 @@
   :config
   (ivy-mode 1))
 
-;;(use-package doom-modeline
-;;  :ensure t
-;;  :init (doom-modeline-mode 1))
+(use-package doom-modeline
+ :ensure t
+ :init (doom-modeline-mode 1))
 
 ;;(use-package rainbow-delimiters
 ;;  :hook (prog-mode . rainbow-delimiters-mode))
@@ -216,8 +209,6 @@
   :diminish which-key-mode
   :config
   (setq which-key-idle-delay 3))
-
-
 
 
 (use-package ivy-rich
@@ -243,86 +234,17 @@
   (rune/leader-keys
     "t"  '(:ignore t :which-key "toggles")
     "tt" '(counsel-load-theme :which-key "choose theme")
-    "c" 'compile))
+   "c" 'compile))
 ;; the line above makes you do a command "compile" after space-c
 ;; the line under makes the command empty when respawned
 ;;(setq compile-command "LD_LIBRARY_PATH=/usr/local/lib64 make && ./main")
 (setq compile-command nil)
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(use-package ivy
-  :diminish
-  :bind (("C-s" . swiper)
-	 :map ivy-minibuffer-map
-	 ("TAB" . ivy-alt-done)
-	 ("C-l" . ivy-alt-done)
-	 ("C-j" . ivy-next-line)
-	 ("C-k" . ivy-previous-line)
-	 :map ivy-switch-buffer-map
-	 ("C-k" . ivy-previous-line)
-	 ("C-l" . ivy-done)
-	 ("C-d" . ivy-switch-buffer-kill)
-	 :map ivy-reverse-i-search-map
-	 ("C-k" . ivy-previous-line)
-	 ("C-d" . ivy-reverse-i-search-kill))
-  :config
-  (ivy-mode 1))
-
 
 (setq display-time-default-load-average nil)
 (display-time-mode 1)
 (setq display-time-format " %a %I:%M %p ")
 
 (add-to-list 'image-types 'svg)
-
-(use-package doom-modeline
-  :ensure t
-  :init (doom-modeline-mode 1))
-
-
-
-
-;;(use-package rainbow-delimiters
-;;  :hook (prog-mode . rainbow-delimiters-mode))
-
-
-(use-package which-key
-  :init (which-key-mode)
-  :diminish which-key-mode
-  :config
-  (setq which-key-idle-delay 3))
-
-
-(use-package ivy-rich
-  :config
-  (ivy-rich-mode 1))
-
-(use-package helpful
-  :custom
-  (counsel-describe-function-function #'helpful-callable)
-  (counsel-describe-function-function #'helpful-variable)
-  :bind
-  ([remap describe-function] . #'helpful-callable)
-  ([remap describe-command] . helpful-command)
-  ([remap describe-variable] . counsel-describe-variable)
-  ([remap describe-key] . helpful-key))
-(use-package general
-  :config
-  (general-create-definer rune/leader-keys
-    :keymaps '(normal insert visual emacs)
-    :prefix "SPC"
-    :global-prefix "C-SPC")
-
-  (rune/leader-keys
-    "t"  '(:ignore t :which-key "toggles")
-    "tt" '(counsel-load-theme :which-key "choose theme")
-    "c" 'compile))
-;; the line above makes you do a command "compile" after space-c
-;; the line under makes the command empty when respawned
-(setq compile-command nil)
 
 
 
@@ -766,14 +688,10 @@
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
    '("8f5b54bf6a36fe1c138219960dd324aad8ab1f62f543bed73ef5ad60956e36ae"
-	 "23e9480ad7fd68bff64f6ecf3c31719c7fe2a34c11f8e27206cd998739f40c84"
-	 "5a4cdc4365122d1a17a7ad93b6e3370ffe95db87ed17a38a94713f6ffe0d8ceb"
-	 default))
- '(package-selected-packages
-   '(blacken command-log-mode company counsel dap-mode
-			 dired-hide-dotfiles doom-modeline evil-collection general
-			 gruber-darker-theme helpful ivy-rich lsp-ui nord-theme
-			 pyvenv use-package vterm-toggle yasnippet)))
+     "23e9480ad7fd68bff64f6ecf3c31719c7fe2a34c11f8e27206cd998739f40c84"
+     "5a4cdc4365122d1a17a7ad93b6e3370ffe95db87ed17a38a94713f6ffe0d8ceb"
+     default))
+ '(package-selected-packages nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
