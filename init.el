@@ -251,6 +251,21 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; Increase the undo limits
+(setq undo-limit 800000         ;; default is 160kB
+      undo-strong-limit 12000000  ;; default is 240kB
+      undo-outer-limit 120000000) ;; default is 24MB
+
+(use-package undo-fu
+  :ensure t)
+
+(use-package undo-fu-session
+  :ensure t
+  :init
+  (undo-fu-session-global-mode)
+  :config
+  (setq undo-fu-session-directory "~/.emacs.d/undo-fu-session/")) ;;don't forget to mkdir ~/.emacs.d/undo-fu-session
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -260,6 +275,7 @@
 (setq evil-want-keybinding nil)
 (use-package evil
   :config
+  (setq evil-undo-system 'undo-fu)
   (setq evil-want-integration t)
   (setq evil-want-C-u-scroll t)
   (setq evil-want-C-i-jump nil)
@@ -282,6 +298,11 @@
   :after evil
   :config
   (evil-collection-init))
+
+
+(with-eval-after-load 'undo-fu
+  (define-key evil-normal-state-map (kbd "C-r") 'undo-fu-redo)
+  (define-key evil-visual-state-map (kbd "C-r") 'undo-fu-redo))
 
 
 
@@ -668,9 +689,6 @@
 
 ;;(set-face-attribute 'flymake-warning nil :underline nil)
 ;;(set-face-attribute 'flymake-note nil :underline nil)
-
-
-
 
 
 
