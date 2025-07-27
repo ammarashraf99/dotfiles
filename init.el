@@ -1,5 +1,14 @@
 (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
 
+(with-eval-after-load 'vterm
+  ;; Make vterm fully control mouse input
+  (setq vterm-disable-mouse nil)
+  (define-key vterm-mode-map [mouse-1] nil)
+  (define-key vterm-mode-map [mouse-3] nil))
+
+
+
+
 (setq inhibit-startup-message t)
 (scroll-bar-mode -1)		;; Disable visible scrollbar
 (tool-bar-mode -1)		;; Disable the toolbar
@@ -394,6 +403,14 @@
                      (or (equal major-mode 'vterm-mode)
                          (string-prefix-p vterm-buffer-name (buffer-name buffer))))))
                (display-buffer-reuse-window display-buffer-same-window)))
+
+(use-package eterm-256color
+  :hook (term-mode . eterm-256color-mode))
+
+
+
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -692,11 +709,18 @@
 
 
 
+;; (load-file "~/.emacs.d/evil-collection-vterm.el")
 
+;;(add-hook 'vterm-mode-hook (lambda () (evil-mode -1)))
 
+;; (with-eval-after-load 'vterm
+;;   (define-key vterm-mode-map [down-mouse-1] nil)
+;;   (define-key vterm-mode-map [mouse-1] nil)
+;;   (define-key vterm-mode-map [drag-mouse-1] nil)
+;;   (define-key vterm-mode-map [mouse-2] nil)
+;;   (define-key vterm-mode-map [mouse-3] nil))
 
-
-
+;; (setq vterm-disable-mouse nil)
 
 
 (custom-set-variables
