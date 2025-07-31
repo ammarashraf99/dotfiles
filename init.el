@@ -1,13 +1,5 @@
 (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
 
-(with-eval-after-load 'vterm
-  ;; Make vterm fully control mouse input
-  (setq vterm-disable-mouse nil)
-  (define-key vterm-mode-map [mouse-1] nil)
-  (define-key vterm-mode-map [mouse-3] nil))
-
-
-
 
 (setq inhibit-startup-message t)
 (scroll-bar-mode -1)		;; Disable visible scrollbar
@@ -28,7 +20,6 @@
 
 ;;(global-hl-line-mode t)
 ;; This is to highlight the line you are on now
-
 
 
 (show-paren-mode 0)
@@ -65,7 +56,10 @@
 (global-set-key (kbd "C-=") 'text-scale-increase)
 (global-set-key (kbd "C--") 'text-scale-decrease)
 
-
+;; Open treemacs in the current working directory of the current open buffer
+(global-set-key (kbd "C-x C-d") 'treemacs-add-and-display-current-project-exclusively)
+;; let delete other window command work on treemacs (C-w-o)
+(setq treemacs-no-delete-other-windows nil)
 
 
 ;; Comment line function
@@ -733,7 +727,8 @@
      "23e9480ad7fd68bff64f6ecf3c31719c7fe2a34c11f8e27206cd998739f40c84"
      "5a4cdc4365122d1a17a7ad93b6e3370ffe95db87ed17a38a94713f6ffe0d8ceb"
      default))
- '(package-selected-packages nil))
+ '(package-selected-packages nil)
+ '(package-vc-selected-packages nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
