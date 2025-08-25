@@ -1,3 +1,5 @@
+#!/bin/bash
+
 alias ll='ls -l'
 alias la='ls -A'
 alias l='ls -CF'
@@ -7,3 +9,6 @@ alias e=emacsclient
 
 alias lsbattery='ls /sys/class/power_supply/'
 alias bathealth='upower -i /org/freedesktop/UPower/devices/battery_BAT1'
+
+
+alias gdb='gdb -q'
