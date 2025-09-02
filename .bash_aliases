@@ -12,3 +12,6 @@ alias bathealth='upower -i /org/freedesktop/UPower/devices/battery_BAT1'
 
 
 alias gdb='gdb -q'
+
+alias hdmi_open='lspci | grep VGA'
+alias cat='batcat --paging=never'
