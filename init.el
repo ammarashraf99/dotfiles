@@ -1,6 +1,5 @@
 (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
 
-
 (setq inhibit-startup-message t)
 (scroll-bar-mode -1)		;; Disable visible scrollbar
 (tool-bar-mode -1)		;; Disable the toolbar
@@ -43,7 +42,7 @@
 (global-display-line-numbers-mode t)
 
 ;; Font and size
-(set-face-attribute 'default nil :font "HackNerdFont" :height 130)
+(set-face-attribute 'default nil :font "HackNerdFont" :height 125)
 ;;Fonts
 ;;FiraMonoNerdFont
 
@@ -500,8 +499,10 @@
   ;;(setq c-basic-offset 4)                  ;; Default is 2
   ;;(setq c-indent-level 4)                  ;; Default is 2
 
-  (setq tab-stop-list '(4 8 12 16 20 24 28 32 36 40 44 48 52 56 60))
-  (setq tab-width 4)
+  ;; (setq tab-stop-list '(4 8 12 16 20 24 28 32 36 40 44 48 52 56 60))
+  (setq tab-stop-list '(8 16 32 64 128 256 512 1024 2048 4096 8192 16384 32768))
+  ;; (setq tab-stop-list '(2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32 34 36 38 40 42 44 46 48 50))
+  (setq tab-width 8)
   (setq indent-tabs-mode t))  ; use spaces only if nil
 
 (add-hook 'c-mode-common-hook 'my-c-mode-common-hook)
@@ -623,57 +624,83 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
+
+;; (use-package lsp-ui
+;;   :ensure t
+;;   :commands lsp-ui-mode
+;;   :config
+;;   (setq lsp-ui-sideline-enable t))
+
+
+
+
+
+;; for performance
 (use-package lsp-mode
   :ensure t
   :hook (python-mode . lsp)
   :config
-  (setq lsp-enable-file-watchers nil   ;; Disable for performance
-        lsp-idle-delay 0.5             ;; Reduce delay for responsiveness
+  (setq lsp-enable-file-watchers nil
+        lsp-idle-delay 0.5
+        lsp-enable-symbol-highlighting t
+        lsp-diagnostics-provider :auto
+        ;; Keep autocompletion enabled
 
-	;; Disable annoying linters
-        lsp-pylsp-plugins-mccabe-enabled nil 
-        lsp-pylsp-plugins-pycodestyle-enabled nil
+        lsp-completion-enable t ;; important if you want autocomp.
+
         lsp-pylsp-plugins-autopep8-enabled nil
+        lsp-pylsp-plugins-yapf-enabled nil
         lsp-pylsp-plugins-pydocstyle-enabled nil
-
-	;; Keep flake8 if you want some useful warning
+        lsp-pylsp-plugins-pycodestyle-enabled nil
+        lsp-pylsp-plugins-pylint-enabled nil
+        lsp-pylsp-plugins-pyflakes-enabled nil
         lsp-pylsp-plugins-flake8-enabled t))
-
-
-
-(use-package lsp-ui
-  :ensure t
-  :commands lsp-ui-mode
-  :config
-  (setq lsp-ui-sideline-enable t))
 
 (setq lsp-python-ms-python-executable
       (expand-file-name "~/.venvs/emacs-lsp/bin/python"))
-
-
-(setq lsp-ui-doc-mode nil)  ;; Disables the popup
-
-
 
 (use-package pyvenv
   :ensure t
   :config
   (pyvenv-mode 1)) ;; Don't forget to insall npm in your system
 
-
-
 (use-package blacken
   :ensure t
   :hook (python-mode . blacken-mode))
 
-
 (use-package company
   :ensure t
-  :hook (python-mode . company-mode))
+  :hook (python-mode . company-mode)
+  :config
+  ;; Make company popup more responsive
+  (setq company-minimum-prefix-length 1
+        company-idle-delay 0.5))  ;; if you decrease, it will be very laggy
 
-  
-  
 
+(use-package lsp-ui
+  :ensure t
+  :commands lsp-ui-mode
+  :config
+  (setq lsp-ui-doc-enable nil
+        lsp-ui-sideline-enable nil))
+
+;; (setq lsp-pylsp-server-command '("~/.venvs/emacs-lsp/bin/pylsp"))
+
+
+
+;;; Projectile ;;;;
+(use-package projectile
+  :diminish projectile-mode
+  :config (projectile-mode)
+  :bind-keymap
+  ("C-c p" . projectile-command-map)
+  :init
+  (setq projectile-switch-project-action #'projectile-dired))
+
+(use-package counsel-projectile
+  :config (counsel-projectile-mode))
+  
 
 
 
