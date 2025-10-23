@@ -642,7 +642,7 @@
   :hook (python-mode . lsp)
   :config
   (setq lsp-enable-file-watchers nil
-        lsp-idle-delay 0.5
+        lsp-idle-delay 0.3
         lsp-enable-symbol-highlighting t
         lsp-diagnostics-provider :auto
         ;; Keep autocompletion enabled
@@ -682,8 +682,8 @@
   :ensure t
   :commands lsp-ui-mode
   :config
-  (setq lsp-ui-doc-enable nil
-        lsp-ui-sideline-enable nil))
+  (setq lsp-ui-doc-enable t
+        lsp-ui-sideline-enable t))
 
 ;; (setq lsp-pylsp-server-command '("~/.venvs/emacs-lsp/bin/pylsp"))
 
@@ -751,10 +751,20 @@
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
    '("8f5b54bf6a36fe1c138219960dd324aad8ab1f62f543bed73ef5ad60956e36ae"
-     "23e9480ad7fd68bff64f6ecf3c31719c7fe2a34c11f8e27206cd998739f40c84"
-     "5a4cdc4365122d1a17a7ad93b6e3370ffe95db87ed17a38a94713f6ffe0d8ceb"
-     default))
- '(package-selected-packages nil)
+	 "23e9480ad7fd68bff64f6ecf3c31719c7fe2a34c11f8e27206cd998739f40c84"
+	 "5a4cdc4365122d1a17a7ad93b6e3370ffe95db87ed17a38a94713f6ffe0d8ceb"
+	 default))
+ '(package-selected-packages
+   '(almost-mono-themes blacken cmake-font-lock cmake-ide
+						command-log-mode company counsel-projectile
+						cpputils-cmake dap-mode dired-hide-dotfiles
+						doom-modeline eldoc-cmake eterm-256color
+						evil-collection flycheck general
+						gruber-darker-theme helpful ivy-rich lsp-ui
+						nord-theme project-cmake pyvenv treemacs
+						undo-fu undo-fu-session use-package
+						validate-html vterm-toggle web-completion-data
+						web-mode yaml yaml-mode yasnippet))
  '(package-vc-selected-packages nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
