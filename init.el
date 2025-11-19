@@ -633,9 +633,14 @@
 (require 'whitespace)
 
 (setq whitespace-display-mappings
-      '((space-mark   ?\     [183] [46])      ; space → ·
-        (tab-mark     ?\t    [187 183] [92 9]) ; tab → »·
-        ))
+      '((space-mark ?\  [183] [46])          ; space → ·
+        (tab-mark   ?\t [183 183 183 183 183 183 183 183]    ; tab → "········"
+                    [46 46 46 46]))          ; fallback "........"
+)
+;; the number 183 is unicode for middle dot
+;; the number 46  is ASCII dot
+;; the fullback is the dot that is used if emacs doesn't supprot
+;; unicode.
 
 (setq whitespace-style '(face spaces tabs trailing space-mark tab-mark))
 
