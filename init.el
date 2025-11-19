@@ -1,5 +1,7 @@
 (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
 
+
+
 (setq inhibit-startup-message t)
 (scroll-bar-mode -1)		;; Disable visible scrollbar
 (tool-bar-mode -1)		;; Disable the toolbar
@@ -141,6 +143,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;  yas-snippet   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;(use-package yas-snippet)
 ;;(yas-global-mode 1)
 ;;(add-hook 'yas-minor-mode-hook (lambda ()
 ;;				 (yas-activate-extra-mode 'fundamental-mode)))
@@ -626,11 +629,26 @@
 
 
 
-;; (use-package lsp-ui
-;;   :ensure t
-;;   :commands lsp-ui-mode
-;;   :config
-;;   (setq lsp-ui-sideline-enable t))
+;; The dotes in the spaces
+(require 'whitespace)
+
+(setq whitespace-display-mappings
+      '((space-mark   ?\     [183] [46])      ; space → ·
+        (tab-mark     ?\t    [187 183] [92 9]) ; tab → »·
+        ))
+
+(setq whitespace-style '(face spaces tabs trailing space-mark tab-mark))
+
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(whitespace-space ((t (:foreground "gray17"))))
+ '(whitespace-tab ((t (:foreground "gray17"))))
+ '(whitespace-trailing ((t (:foreground "gray17")))))
+
+(global-whitespace-mode 1)
 
 
 
@@ -639,10 +657,12 @@
 ;; for performance
 (use-package lsp-mode
   :ensure t
-  :hook (python-mode . lsp)
+  :hook ((python-mode . lsp)
+	 (go-mode . lsp)
+	 (csharp-mode . lsp))
   :config
   (setq lsp-enable-file-watchers nil
-        lsp-idle-delay 0.3
+        lsp-idle-delay 0.4
         lsp-enable-symbol-highlighting t
         lsp-diagnostics-provider :auto
         ;; Keep autocompletion enabled
@@ -657,26 +677,39 @@
         lsp-pylsp-plugins-pyflakes-enabled nil
         lsp-pylsp-plugins-flake8-enabled t))
 
-(setq lsp-python-ms-python-executable
-      (expand-file-name "~/.venvs/emacs-lsp/bin/python"))
 
+
+
+;;--- C# support ---
+(use-package csharp-mode
+  :ensure t
+  :hook (csharp-mode . lsp))
+
+;; (with-eval-after-load 'lsp-mode
+;;   ;; Tell lsp-mode where OmniSharp is
+;;   (setq lsp-csharp-server-path "~/.local/share/omnisharp"))
+
+;; fucken Csharp Man...
+;; Don't forget to fucken add a symbolic link the root directory of dotnet
+;; in /usr/share/dotnet
+
+
+
+;; Python support
 (use-package pyvenv
   :ensure t
   :config
   (pyvenv-mode 1)) ;; Don't forget to insall npm in your system
+
+(setq lsp-python-ms-python-executable
+      (expand-file-name "~/.venvs/emacs-lsp/bin/python"))
 
 (use-package blacken
   :ensure t
   :hook (python-mode . blacken-mode))
 
 (use-package company
-  :ensure t
-  :hook (python-mode . company-mode)
-  :config
-  ;; Make company popup more responsive
-  (setq company-minimum-prefix-length 1
-        company-idle-delay 0.5))  ;; if you decrease, it will be very laggy
-
+  :ensure t)
 
 (use-package lsp-ui
   :ensure t
@@ -686,6 +719,21 @@
         lsp-ui-sideline-enable t))
 
 ;; (setq lsp-pylsp-server-command '("~/.venvs/emacs-lsp/bin/pylsp"))
+
+
+;; Golang shit
+(use-package go-mode
+  :ensure t)
+(setq lsp-gopls-server-path (expand-file-name "~/go/bin/gopls"))
+
+(use-package exec-path-from-shell
+  :config
+  (exec-path-from-shell-initialize))
+
+
+(with-eval-after-load 'lsp-mode
+  (evil-define-key 'normal lsp-mode-map
+    (kbd "g d") #'lsp-find-definition))
 
 
 
@@ -751,24 +799,9 @@
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
    '("8f5b54bf6a36fe1c138219960dd324aad8ab1f62f543bed73ef5ad60956e36ae"
-	 "23e9480ad7fd68bff64f6ecf3c31719c7fe2a34c11f8e27206cd998739f40c84"
-	 "5a4cdc4365122d1a17a7ad93b6e3370ffe95db87ed17a38a94713f6ffe0d8ceb"
-	 default))
- '(package-selected-packages
-   '(almost-mono-themes blacken cmake-font-lock cmake-ide
-						command-log-mode company counsel-projectile
-						cpputils-cmake dap-mode dired-hide-dotfiles
-						doom-modeline eldoc-cmake eterm-256color
-						evil-collection flycheck general
-						gruber-darker-theme helpful ivy-rich lsp-ui
-						nord-theme project-cmake pyvenv treemacs
-						undo-fu undo-fu-session use-package
-						validate-html vterm-toggle web-completion-data
-						web-mode yaml yaml-mode yasnippet))
+     "23e9480ad7fd68bff64f6ecf3c31719c7fe2a34c11f8e27206cd998739f40c84"
+     "5a4cdc4365122d1a17a7ad93b6e3370ffe95db87ed17a38a94713f6ffe0d8ceb"
+     default))
+ '(package-selected-packages nil)
  '(package-vc-selected-packages nil))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+
