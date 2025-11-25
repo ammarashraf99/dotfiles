@@ -82,8 +82,9 @@
 (global-set-key (kbd "C-x c") 'my/comment-or-uncomment)
 
 
+;; it confilicts with a binding. use spc-c to compile
 ;; Compile
-(global-set-key (kbd "M-c") 'compile)
+;; (global-set-key (kbd "M-c") 'compile)
 
 ;; Revert Buffer
 (global-set-key (kbd "C-x g r") 'revert-buffer-quick)
@@ -116,7 +117,7 @@
 ;; almost-mono-gray almost-mono-black
 ;; nord
 ;; nord gruber-darker mustang
-;;flatland gruber-darker zenburn gruvbox-dark-medium  subdued  twilight 
+;;flatland gruber-darker zenburn gruvbox-dark-medium  subdued  twilight
 
 
 ;; Inixialize package sources
@@ -239,7 +240,7 @@
   (rune/leader-keys
     "t"  '(:ignore t :which-key "toggles")
     "tt" '(counsel-load-theme :which-key "choose theme")
-   "c" 'compile))
+    "c" 'compile))
 ;; the line above makes you do a command "compile" after space-c
 ;; the line under makes the command empty when respawned
 ;;(setq compile-command "LD_LIBRARY_PATH=/usr/local/lib64 make && ./main")
@@ -664,7 +665,8 @@
   :ensure t
   :hook ((python-mode . lsp)
 	 (go-mode . lsp)
-	 (csharp-mode . lsp))
+	 (csharp-mode . lsp)
+	 (sql-mode . lsp))
   :config
   (setq lsp-enable-file-watchers nil
         lsp-idle-delay 0.4
@@ -731,15 +733,18 @@
   :ensure t)
 (setq lsp-gopls-server-path (expand-file-name "~/go/bin/gopls"))
 
+(setq gofmt-command "goimports")
+(add-hook 'before-save-hook 'gofmt-before-save)
+
 (use-package exec-path-from-shell
   :config
   (exec-path-from-shell-initialize))
 
 
+
 (with-eval-after-load 'lsp-mode
   (evil-define-key 'normal lsp-mode-map
     (kbd "g d") #'lsp-find-definition))
-
 
 
 ;;; Projectile ;;;;
@@ -753,7 +758,8 @@
 
 (use-package counsel-projectile
   :config (counsel-projectile-mode))
-  
+
+
 
 
 
@@ -810,3 +816,4 @@
  '(package-selected-packages nil)
  '(package-vc-selected-packages nil))
 
+(put 'upcase-region 'disabled nil)
