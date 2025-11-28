@@ -539,6 +539,16 @@
 (setq flycheck-check-syntax-automatically '(idle-change)) ;; don't forget to install flycheck package
 
 
+;; This cool shit lets you fold and unfold anything between {...}
+(add-hook 'prog-mode-hook #'hs-minor-mode)
+(evil-define-key 'normal prog-mode-map
+  "za" 'hs-toggle-hiding
+  "zc" 'hs-hide-block
+  "zo" 'hs-show-block
+  "zM" 'hs-hide-all
+  "zR" 'hs-show-all)
+
+
 
 (setq package-selected-packages '(lsp-mode yasnippet dap-mode
 					   avy which-key ))
@@ -686,11 +696,19 @@
 
 
 
-
 ;;--- C# support ---
 (use-package csharp-mode
   :ensure t
   :hook (csharp-mode . lsp))
+
+
+;; Don't forget to install origami package and lsp-origami
+;; from M-x package-install command
+(add-hook 'csharp-mode-hook 'origami-mode)
+(evil-define-key 'normal csharp-mode-map
+  "za" 'origami-toggle-node)
+(add-hook 'csharp-mode-hook #'lsp)
+(add-hook 'csharp-mode-hook #'lsp-origami-mode)
 
 ;; (with-eval-after-load 'lsp-mode
 ;;   ;; Tell lsp-mode where OmniSharp is
@@ -813,7 +831,19 @@
      "23e9480ad7fd68bff64f6ecf3c31719c7fe2a34c11f8e27206cd998739f40c84"
      "5a4cdc4365122d1a17a7ad93b6e3370ffe95db87ed17a38a94713f6ffe0d8ceb"
      default))
- '(package-selected-packages nil)
+ '(package-selected-packages
+   '(almost-mono-themes auto-complete blacken cmake-font-lock cmake-ide
+			command-log-mode company counsel-projectile
+			cpputils-cmake csproj-mode dap-mode
+			dired-hide-dotfiles doom-modeline eldoc-cmake
+			eterm-256color evil-collection
+			exec-path-from-shell flycheck general
+			go-projectile gruber-darker-theme helpful
+			ivy-rich lsp-origami lsp-ui nord-theme origami
+			project-cmake pyvenv treemacs undo-fu
+			undo-fu-session validate-html vterm-toggle
+			web-completion-data web-mode yaml yaml-mode
+			yasnippet))
  '(package-vc-selected-packages nil))
 
 (put 'upcase-region 'disabled nil)
