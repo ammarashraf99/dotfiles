@@ -1,7 +1,6 @@
 (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
 
 
-
 (setq inhibit-startup-message t)
 (scroll-bar-mode -1)		;; Disable visible scrollbar
 (tool-bar-mode -1)		;; Disable the toolbar
@@ -16,6 +15,7 @@
 (setq make-backup-files nil) ; stop creating ~ files
 (setq backup-directory-alist            '((".*" . "~/.Trash")))
 
+
 ;; This saves the buffer automatically before any compile command
 (advice-add 'compile :before (lambda (&rest _) (save-buffer)))
 
@@ -23,7 +23,8 @@
 ;; This is to highlight the line you are on now
 
 
-(show-paren-mode 0)
+(setq show-paren-delay 0)
+(show-paren-mode 1)
 
 ;;Fixing scroll
 (setq redisplay-dont-pause t
@@ -51,7 +52,7 @@
 
 ;; Make ESC quit prompts
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-;;(global-set-key (kbd "C-x j") 'counsel-switch-buffer)
+(global-set-key (kbd "C-x j") 'counsel-switch-buffer)
 
 ;; Clear increase text size and decrease
 (global-set-key (kbd "C-=") 'text-scale-increase)
@@ -93,31 +94,27 @@
 (global-set-key (kbd "C-a") 'increment-number-at-point)
 
 
+(setq evil-want-keybinding nil)
+(use-package evil-collection
+  :after evil
+  :config
+  (evil-collection-init))
+
 ;;; Themes shit
 
-;; (use-package almost-mono-themes
-;;   :config
-;;   ;; (load-theme 'almost-mono-black t)
-;;   ;; (load-theme 'almost-mono-gray t)
-;;   ;; (load-theme 'almost-mono-cream t)
-;;   (load-theme 'almost-mono-black t))
-
 ;; my favorite themes
-;; [nork]=darktooth=doom-nord-aurora=creamsody=immaterial-dark=inverse-acme=kosmos=
+;; doom-nord-creamsody=immaterial-dark=inverse-acme=kosmos=
 ;; labburn=mustang=doom-plain-dark=warm-night=gruber-darker
 ;;(set-background-color "SlateGrey")
 ;;(load-theme 'immaterial-dark t)
 
-;; Put the main theme file almost-mono-themes.el in your load path
-;;(add-to-list 'load-path "~/.emacs.d/elisp")
-;;(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
-
 (mapc #'disable-theme custom-enabled-themes)
 (load-theme 'gruber-darker t)
+;; gruber-darker darktooth-dark
 ;; almost-mono-gray almost-mono-black
 ;; nord
 ;; nord gruber-darker mustang
-;;flatland gruber-darker zenburn gruvbox-dark-medium  subdued  twilight
+;; flatland gruber-darker zenburn gruvbox-dark-medium  subdued  twilight
 
 
 ;; Inixialize package sources
@@ -126,8 +123,6 @@
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
 			 ("org" . "https://orgmode.org/elpa/")
 			 ("elpa" . "https://elpa.gnu.org/packages/")))
-
-
 
 (package-initialize)
 (unless package-archive-contents
@@ -142,12 +137,195 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;     Org Mode    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package org
+  ;; :hook (org-mode . efs/org-mode-setup) ;; shit
+  :config
+  (setq org-ellipsis " ▾" ;; when you hit tab to collaps a heading
+	org-hide-emphasis-markers t) ;; hides ** around bold stuf and other markings
+
+  (setq org-agenda-start-with-log-mode t)
+  (setq org-log-done 'time)
+  (setq org-log-into-drawer t)
+
+  (setq org-agenda-files
+	'(
+	  "/home/ammar/programming/TODOs/Periodics.org"
+	  "/home/ammar/programming/TODOs/Today.org"))
+
+  ;;THIS IS HOW TO CREATE NEW TASK STATES
+  (setq org-todo-keywords
+	'(
+	  ;; (sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
+	  ;; (sequence "BACKLOG(b)" "PLAN(p)" "READY(n)" "ACTIVE(a)" "REVIEW(w@/!)" "HOLD(h)" "|" "completed(c)" "canc(k@)")
+ 
+	  (sequence "TODO(t)" "|" "DONE(d!)")
+	  (sequence "WEEKLY(w@/!)" "|" "DONE(d!)")
+	  (sequence "MONTHLY(m@/!)" "|" "DONE(d!)")
+	  )
+	)
+)
+
+(setq org-deadline-warning-days 7)
+
+(global-set-key (kbd "C-c l") #'org-store-link) ;; confilit with lsp-mode
+(global-set-key (kbd "C-c a") #'org-agenda)
+(global-set-key (kbd "C-c c") #'org-capture)
+
+
+(setq org-refile-targets
+      '(("Archive.org" :maxlevel . 1)
+	;; ("Today.org" :maxlevel . 1)
+	))
+
+
+(use-package org-bullets
+  :after org
+  :hook (org-mode . org-bullets-mode))
+
+;; ;; Set faces for heading levels
+;; (dolist (face '((org-level-1 . 1.2)
+;;                 (org-level-2 . 1.1)
+;;                 (org-level-3 . 1.05)
+;;                 (org-level-4 . 1.0)
+;;                 (org-level-5 . 1.1)
+;;                 (org-level-6 . 1.1)
+;;                 (org-level-7 . 1.1)
+;;                 (org-level-8 . 1.1)))
+;;   (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
+
+
+(use-package evil-org
+  :ensure t
+  :after org
+  :hook (org-mode . (lambda () evil-org-mode))
+  :config
+  (require 'evil-org-agenda)
+  (evil-org-agenda-set-keys))
+
+
+;; Very good illustration on how to configure the agenda dispatcher
+
+;;   ;; Configure custom agenda views
+;; (setq org-agenda-custom-commands
+;;       '(
+;; 	("d" "Dashboard"
+;; 	 ((agenda "" ((org-deadline-warning-days 7)))
+;; 	  (todo "NEXT"
+;; 		((org-agenda-overriding-header "Next Tasks")))
+;; 	  (tags-todo "agenda/ACTIVE" ((org-agenda-overriding-header "Active Projects")))))
+
+;; 	("n" "Next Tasks"
+;; 	 ((todo "NEXT"
+;; 		((org-agenda-overriding-header "Next Tasks")))))
+
+;;      ;;this will let you query work tags that do not have email tags...
+;; 	("W" "Work Tasks" tags-todo "+work-email")
+
+;; 	;; Low-effort next actions
+;; 	("e" tags-todo "+TODO=\"NEXT\"+Effort<15&+Effort>0"
+;; 	 ((org-agenda-overriding-header "Low Effort Tasks")
+;; 	  (org-agenda-max-todos 20)
+;; 	  (org-agenda-files org-agenda-files)))
+
+;; 	("w" "Workflow Status"
+;; 	 ((todo "WAIT"
+;; 		((org-agenda-overriding-header "Waiting on External")
+;; 		 (org-agenda-files org-agenda-files)))
+;; 	  (todo "REVIEW"
+;; 		((org-agenda-overriding-header "In Review")
+;; 		 (org-agenda-files org-agenda-files)))
+;; 	  (todo "PLAN"
+;; 		((org-agenda-overriding-header "In Planning")
+;; 		 (org-agenda-todo-list-sublevels nil)
+;; 		 (org-agenda-files org-agenda-files)))
+;; 	  (todo "BACKLOG"
+;; 		((org-agenda-overriding-header "Project Backlog")
+;; 		 (org-agenda-todo-list-sublevels nil)
+;; 		 (org-agenda-files org-agenda-files)))
+;; 	  (todo "READY"
+;; 		((org-agenda-overriding-header "Ready for Work")
+;; 		 (org-agenda-files org-agenda-files)))
+;; 	  (todo "ACTIVE"
+;; 		((org-agenda-overriding-header "Active Projects")
+;; 		 (org-agenda-files org-agenda-files)))
+;; 	  (todo "COMPLETED"
+;; 		((org-agenda-overriding-header "Completed Projects")
+;; 		 (org-agenda-files org-agenda-files)))
+;; 	  (todo "CANC"
+;; 		((org-agenda-overriding-header "Cancelled Projects")
+;; 		 (org-agenda-files org-agenda-files)))))))
+
+
+
+(global-set-key (kbd "C-c q") #'counsel-org-tag)
+;; commands for tags (counsel-org-tag, org-set-tags-command)
+;; known tags
+;; (setq org-tag-alist
+;;       '((:startgroup)
+;; 	;; Put mutually exclusive tags here
+;; 	(:endgroup)
+;; 	("@errand" . ?E)
+;; 	("@home" . ?H)
+;; 	("@work" . ?W)
+;; 	("agenda" . ?a)
+;; 	("planning" . ?p)
+;; 	("publish" . ?P)
+;; 	("batch" . ?b)
+;; 	("note" . ?n)
+;; 	("idea" . ?i)))
+
+
+(setq org-capture-templates
+    `(("t" "Tasks / Projects")
+      ("tt" "Task" entry (file+olp "/home/ammar/programming/TODOs/Periodics.org" "Inbox")
+           "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
+
+      ("j" "Journal Entries")
+      ("jj" "Journal" entry
+           (file+olp+datetree "~/Projects/Code/emacs-from-scratch/OrgFiles/Journal.org")
+           "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
+           ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
+           :clock-in :clock-resume
+           :empty-lines 1)
+      ("jm" "Meeting" entry
+           (file+olp+datetree "~/Projects/Code/emacs-from-scratch/OrgFiles/Journal.org")
+           "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
+           :clock-in :clock-resume
+           :empty-lines 1)
+
+      ("w" "Workflows")
+      ("we" "Checking Email" entry (file+olp+datetree "~/Projects/Code/emacs-from-scratch/OrgFiles/Journal.org")
+           "* Checking Email :email:\n\n%?" :clock-in :clock-resume :empty-lines 1)
+      ))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;  yas-snippet   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;(use-package yas-snippet)
 ;;(yas-global-mode 1)
 ;;(add-hook 'yas-minor-mode-hook (lambda ()
 ;;				 (yas-activate-extra-mode 'fundamental-mode)))
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Evil Multiple Cursor
+
+(require 'evil-mc)
+(global-evil-mc-mode 1)
+
+;; mostly you will need few commands
+;; g . n ===> evil-mc-make-and-goto-next-match
+;; g . N ===> evil-mc-make-and-goto-prev-match
+
+;; g . q ===> evil-mc-undo-all-cursors
+;; g . u ===> evil-mc-undo-last-added-cursors
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -162,13 +340,12 @@
 
 
 ;; Disable line numbers for some modes
-(dolist (mode '(org-mode-hook
+(dolist (mode '(;;org-mode-hook
 		term-mode-hook
 		shell-mode-hook
 		eshell-mode-hook
 		vterm-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
-
 
 
 
@@ -205,9 +382,6 @@
 (use-package doom-modeline
  :ensure t
  :init (doom-modeline-mode 1))
-
-;;(use-package rainbow-delimiters
-;;  :hook (prog-mode . rainbow-delimiters-mode))
 
 
 (use-package which-key
@@ -246,9 +420,13 @@
 ;;(setq compile-command "LD_LIBRARY_PATH=/usr/local/lib64 make && ./main")
 (setq compile-command nil)
 
+(setq display-time-24hr-format t)
+
 (setq display-time-default-load-average nil)
+
 (display-time-mode 1)
-(setq display-time-format " %a %I:%M %p ")
+
+(setq display-time-format " %a %R ")
 
 (add-to-list 'image-types 'svg)
 
@@ -296,14 +474,14 @@
   (evil-set-initial-state 'dashboard-mode 'normal))
 
 
-(setq evil-insert-state-cursor '(box   "white")
-      evil-normal-state-cursor '(box "white"))
+(setq evil-insert-state-cursor '(box)
+      evil-normal-state-cursor '(box))
+
+;; you can add color at the end
+;; (setq evil-insert-state-cursor '(box   "white")
+;;       evil-normal-state-cursor '(box "white"))
 
 
-(use-package evil-collection
-  :after evil
-  :config
-  (evil-collection-init))
 
 
 (with-eval-after-load 'undo-fu
@@ -346,10 +524,13 @@
   :ensure t
   :commands vterm
   :config
+  (add-hook 'vterm-directory-change-hook #'vterm--update-directory)
   (vterm--set-directory "/home/ammar")
   (setq default-directory "/home/ammar")
   (setq vterm-max-scrollback 10000)
   (setq vterm-kill-buffer-on-exit t))
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; multi vterm
@@ -640,32 +821,35 @@
 
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; The dotes in the spaces
-(require 'whitespace)
+	    ;; (require 'whitespace)
 
-(setq whitespace-display-mappings
-      '((space-mark ?\  [183] [46])          ; space → ·
-        (tab-mark   ?\t [183 183 183 183 183 183 183 183]    ; tab → "········"
-                    [46 46 46 46]))          ; fallback "........"
-)
+	    ;; (setq whitespace-display-mappings
+	    ;; 	'((space-mark ?\  [183] [46])          ; space → ·
+	    ;; 	    (tab-mark   ?\t [183 183 183 183 183 183 183 183]    ; tab → "········"
+	    ;; 			[46 46 46 46]))          ; fallback "........"
+	    ;; )
 ;; the number 183 is unicode for middle dot
 ;; the number 46  is ASCII dot
 ;; the fullback is the dot that is used if emacs doesn't supprot
 ;; unicode.
 
-(setq whitespace-style '(face spaces tabs trailing space-mark tab-mark))
 
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(whitespace-space ((t (:foreground "gray17"))))
- '(whitespace-tab ((t (:foreground "gray17"))))
- '(whitespace-trailing ((t (:foreground "gray17")))))
+	    ;; (setq whitespace-style '(face spaces tabs trailing space-mark tab-mark))
 
-(global-whitespace-mode 1)
+	    ;; (custom-set-faces
+	    ;; ;; custom-set-faces was added by Custom.
+	    ;; ;; If you edit it by hand, you could mess it up, so be careful.
+	    ;; ;; Your init file should contain only one such instance.
+	    ;; ;; If there is more than one, they won't work right.
+	    ;; '(whitespace-space ((t (:foreground "gray17"))))
+	    ;; '(whitespace-tab ((t (:foreground "gray17"))))
+	    ;; '(whitespace-trailing ((t (:foreground "gray17")))))
 
+	    ;; (global-whitespace-mode 1)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 
@@ -707,8 +891,10 @@
 (add-hook 'csharp-mode-hook 'origami-mode)
 (evil-define-key 'normal csharp-mode-map
   "za" 'origami-toggle-node)
-(add-hook 'csharp-mode-hook #'lsp)
-(add-hook 'csharp-mode-hook #'lsp-origami-mode)
+
+;; Keep them commented.... (they make the #region disappear to ... when folded)
+;; (add-hook 'csharp-mode-hook #'lsp)
+;; (add-hook 'csharp-mode-hook #'lsp-origami-mode)
 
 ;; (with-eval-after-load 'lsp-mode
 ;;   ;; Tell lsp-mode where OmniSharp is
@@ -831,19 +1017,30 @@
      "23e9480ad7fd68bff64f6ecf3c31719c7fe2a34c11f8e27206cd998739f40c84"
      "5a4cdc4365122d1a17a7ad93b6e3370ffe95db87ed17a38a94713f6ffe0d8ceb"
      default))
+ '(helm-minibuffer-history-key "M-p")
  '(package-selected-packages
    '(almost-mono-themes auto-complete blacken cmake-font-lock cmake-ide
 			command-log-mode company counsel-projectile
-			cpputils-cmake csproj-mode dap-mode
-			dired-hide-dotfiles doom-modeline eldoc-cmake
-			eterm-256color evil-collection
-			exec-path-from-shell flycheck general
-			go-projectile gruber-darker-theme helpful
-			ivy-rich lsp-origami lsp-ui nord-theme origami
-			project-cmake pyvenv treemacs undo-fu
-			undo-fu-session validate-html vterm-toggle
+			cpputils-cmake creamsody-theme csproj-mode
+			dap-mode darktooth-theme dired-hide-dotfiles
+			doom-modeline doom-themes dracula-theme
+			eldoc-cmake eterm-256color evil-collection
+			evil-mc evil-org exec-path-from-shell
+			flatland-theme flycheck general go-projectile
+			gruber-darker-theme helm-org-ql helpful
+			ivy-rich lsp-origami lsp-ui mustang-theme
+			nord-theme org-bullets project-cmake pyvenv
+			quelpa-use-package rainbow-delimiters treemacs
+			undo-fu undo-fu-session validate-html
+			visual-fill-column vterm-toggle
 			web-completion-data web-mode yaml yaml-mode
-			yasnippet))
+			yasnippet zenburn-theme))
  '(package-vc-selected-packages nil))
 
 (put 'upcase-region 'disabled nil)
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
