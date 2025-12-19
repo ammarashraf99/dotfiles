@@ -8,7 +8,7 @@
 (set-fringe-mode -1)		;; Give some breathing room
 (menu-bar-mode -1)		;; Disable the menu bar
 (blink-cursor-mode -1)
-(setq tab-width 4)
+(setq tab-width 8)
 (defvaralias 'c-basic-offset 'tab-width)
 (defvaralias 'cperl-indent-level 'tab-width)
 (setq make-pointer-invisibile t)
@@ -98,7 +98,8 @@
 (use-package evil-collection
   :after evil
   :config
-  (evil-collection-init))
+  (evil-collection-init)
+  )
 
 ;;; Themes shit
 
@@ -141,7 +142,7 @@
 ;;;;;;;;;     Org Mode    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package org
-  ;; :hook (org-mode . efs/org-mode-setup) ;; shit
+  :hook (org-mode . efs/org-mode-setup) ;; shit
   :config
   (setq org-ellipsis " ▾" ;; when you hit tab to collaps a heading
 	org-hide-emphasis-markers t) ;; hides ** around bold stuf and other markings
@@ -160,13 +161,17 @@
 	'(
 	  ;; (sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
 	  ;; (sequence "BACKLOG(b)" "PLAN(p)" "READY(n)" "ACTIVE(a)" "REVIEW(w@/!)" "HOLD(h)" "|" "completed(c)" "canc(k@)")
- 
+
 	  (sequence "TODO(t)" "|" "DONE(d!)")
 	  (sequence "WEEKLY(w@/!)" "|" "DONE(d!)")
 	  (sequence "MONTHLY(m@/!)" "|" "DONE(d!)")
 	  )
 	)
 )
+
+(defun efs/org-mode-setup()
+  (visual-line-mode 1)
+  )
 
 (setq org-deadline-warning-days 7)
 
@@ -177,24 +182,36 @@
 
 (setq org-refile-targets
       '(("Archive.org" :maxlevel . 1)
-	;; ("Today.org" :maxlevel . 1)
 	))
+
+(advice-add 'org-refile :after 'org-save-all-org-buffers)
 
 
 (use-package org-bullets
   :after org
   :hook (org-mode . org-bullets-mode))
 
-;; ;; Set faces for heading levels
-;; (dolist (face '((org-level-1 . 1.2)
-;;                 (org-level-2 . 1.1)
-;;                 (org-level-3 . 1.05)
-;;                 (org-level-4 . 1.0)
-;;                 (org-level-5 . 1.1)
-;;                 (org-level-6 . 1.1)
-;;                 (org-level-7 . 1.1)
-;;                 (org-level-8 . 1.1)))
-;;   (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
+;; Set faces for heading levels
+;;(dolist (face '((org-level-1 . 1.2)
+;;               (org-level-2 . 1.1)
+;;               (org-level-3 . 1.05)
+;;               (org-level-4 . 1.0)
+;;               (org-level-5 . 1.1)
+;;               (org-level-6 . 1.1)
+;;               (org-level-7 . 1.1)
+;;               (org-level-8 . 1.1)))
+;; (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
+
+
+(defun efs/org-mode-visual-fill ()
+  (setq visual-fill-column-width 100
+        visual-fill-column-center-text t)
+  (visual-fill-column-mode 1))
+
+(use-package visual-fill-column
+  :hook (org-mode . efs/org-mode-visual-fill))
+
+
 
 
 (use-package evil-org
@@ -278,10 +295,15 @@
 ;; 	("idea" . ?i)))
 
 
+
 (setq org-capture-templates
     `(("t" "Tasks / Projects")
-      ("tt" "Task" entry (file+olp "/home/ammar/programming/TODOs/Periodics.org" "Inbox")
-           "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
+      ("tt" "Task" entry (file+olp "/home/ammar/programming/TODOs/Today.org" "Inbox")
+       "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
+
+      ("r" "Random...")
+      ("rr" "Random" entry (file+olp "/home/ammar/programming/TODOs/Random.org" "Random Ideas !!")
+       "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
 
       ("j" "Journal Entries")
       ("jj" "Journal" entry
@@ -301,6 +323,77 @@
            "* Checking Email :email:\n\n%?" :clock-in :clock-resume :empty-lines 1)
       ))
 
+;;;;;;;;;;;;;;;
+;; Org babel ;;
+;;;;;;;;;;;;;;;
+
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '(
+   (emacs-lisp . t)
+   (python . t)
+   (C . t)
+   (go . t)
+   (csharp . t)
+   (jupyter . t)
+   ))
+
+
+;; If you don't find ob-<language>, look for it in
+;; melpa or any package manager
+(require 'ob-go)
+
+;; so that it does not ask to execute every time
+(setq org-confirm-babel-evaluate nil)
+
+
+;;;;;;;;;;;;;;;;;;;;;;
+;; csharp org babel ;;
+;;;;;;;;;;;;;;;;;;;;;;
+
+;; (setf org-babel-csharp-default-target-framework "net8.0")
+;; this is to be able to install a package by fetching github repo
+(use-package quelpa-use-package
+  :init (setq quelpa-update-melpa-p nil)
+  :config (quelpa-use-package-activate-advice))
+
+;; you also need to install this pack from dotnet:
+;; $ dotnet tool install -g dotnet-script
+
+;; fetching github repo for ob-csharp
+(use-package ob-csharp
+  :ensure t
+  :quelpa (ob-csharp
+           :fetcher github
+           :repo "samwdp/ob-csharp")
+)
+
+
+(with-eval-after-load 'org
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((jupyter . t)))
+  (setq org-confirm-babel-evaluate nil))
+
+
+
+
+;; so that you can write "<py TAB" and it will write the bounds of your code
+(require 'org-tempo)
+(add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+(add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+(add-to-list 'org-structure-template-alist '("py" . "src python"))
+(add-to-list 'org-structure-template-alist '("csharp" . "src csharp"))
+(add-to-list 'org-structure-template-alist '("go" . "src go"))
+
+
+
+
+
+;; Pomodoroooo ??
+;; Use wav formats. mp3 is fucked...
+(setq org-clock-sound "~/Downloads/ding.wav")
+(setq org-timer-default-timer 30)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;  yas-snippet   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -312,10 +405,115 @@
 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; Evil Multiple Cursor
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;                                Email-mu4e                                   ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Managing mail with mu4e
+
+
+
+(use-package mu4e
+  :ensure nil
+  :load-path "/usr/share/emacs/site-lisp/elpa-src/mu4e-1.12.9/"
+  :defer 20 ; Wait until 20 seconds after startup
+  :config
+
+  ;; This is set to 't' to avoid mail syncing issues when using mbsync
+  (setq mu4e-change-filenames-when-moving t)
+
+  ;; Refresh mail using isync every 10 minutes
+  (setq mu4e-update-interval (* 10 60))
+  (setq mu4e-get-mail-command "mbsync -a")
+  (setq mu4e-maildir "~/Mail")
+  (setq mu4e-context-policy 'always-ask)
+
+  (setq mu4e-contexts
+        (list
+         (make-mu4e-context
+          :name "Personal"
+          :match-func
+          (lambda (msg)
+            (when msg
+              (string-prefix-p "/Gmail" (mu4e-message-field msg :maildir))))
+          :vars '((user-mail-address . "ammarashraf111@gmail.com")
+                  (user-full-name    . "Ammar Ashraf")
+                  (mu4e-drafts-folder  . "/Gmail/[Gmail]/Drafts")
+                  (mu4e-sent-folder  . "/Gmail/[Gmail]/Sent Mail")
+                  (mu4e-refile-folder  . "/Gmail/[Gmail]/All Mail")
+                  (mu4e-trash-folder  . "/Gmail/[Gmail]/Trash")
+		  )))
+	)
+
+  (setq mu4e-maildir-shortcuts
+        '(("/Gmail/Inbox"                   . ?i)
+          ("/Gmail/[Gmail]/Sent Mail" . ?s)
+          ("/Gmail/[Gmail]/Trash"     . ?t)
+          ("/Gmail/[Gmail]/Drafts"    . ?d)
+          ("/Gmail/[Gmail]/All Mail"  . ?a)
+	  ))
+  (server-start)
+  (mu4e t) ;; run mu4e in the background to sync mail periodically
+  )
+
+
+(setq message-send-mail-function 'smtpmail-send-it)
+(setq smtpmail-stream-type 'ssl)
+(setq smtpmail-smtp-server "smtp.gmail.com")
+(setq smtpmail-smtp-service 465)
+
+(setq mu4e-compose-format-flowed t)
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun efs/lookup-password (&rest keys)
+  (let ((result (apply #'auth-source-search keys)))
+		(if result
+			(funcall (plist-get (car result) :secret))
+		  nil)))
+
+
+
+
+;; Language tool
+;; github ==> https://github.com/PillFall/languagetool.el
+(use-package languagetool
+  :ensure t
+  :defer t
+  :commands (languagetool-check
+             languagetool-clear-suggestions
+             languagetool-correct-at-point
+             languagetool-correct-buffer
+             languagetool-set-language
+             languagetool-server-mode
+             languagetool-server-start
+             languagetool-server-stop)
+  :config
+  (setq languagetool-java-arguments '("-Dfile.encoding=UTF-8")
+        languagetool-console-command "~/.languagetool/languagetool-commandline.jar"
+        languagetool-server-command "~/.languagetool/languagetool-server.jar"
+	))
+;; you start the server by (languagetool-server-start)
+;; then you set the server mode (languagetool-server-mode)
+
+;; correct key binding
+(global-set-key (kbd "C-c C") #'languagetool-correct-at-point)
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Evil Multiple Cursor ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (require 'evil-mc)
 (global-evil-mc-mode 1)
@@ -413,7 +611,7 @@
 
   (rune/leader-keys
     "t"  '(:ignore t :which-key "toggles")
-    "tt" '(counsel-load-theme :which-key "choose theme")
+    "tt" '(org-timer-set-timer :which-key "org timer")
     "c" 'compile))
 ;; the line above makes you do a command "compile" after space-c
 ;; the line under makes the command empty when respawned
@@ -677,6 +875,7 @@
 (defun my-c-mode-common-hook ()
   ;; my customizations for all of c-mode, c++-mode, objc-mode, java-mode
   (c-set-offset 'substatement-open 0)
+  (setq c-basic-offset 8)
   ;; other customizations can go here
 
   ;;(setq c++-tab-always-indent t)
@@ -688,9 +887,37 @@
   (setq tab-stop-list '(8 16 32 64 128 256 512 1024 2048 4096 8192 16384 32768))
   ;; (setq tab-stop-list '(2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32 34 36 38 40 42 44 46 48 50))
   (setq tab-width 8)
-  (setq indent-tabs-mode t))  ; use spaces only if nil
+  (setq indent-tabs-mode nil))  ; use spaces only if nil
+
+(setq markdown-list-indent-width 8)
+(setq csharp-ts-mode-indent-offset 8)
 
 (add-hook 'c-mode-common-hook 'my-c-mode-common-hook)
+
+
+;; this is to let the indentation function [indent-region-function]
+;; to be indent-according-to-mod
+;; which uses the major mode indentation variables... (8 for most)
+;; it takes control from lsp which used to alwasy indent based on his variables
+;; not based on the emacs variables
+(setq lsp-enable-indentation nil)
+(setq lsp-enable-on-type-formatting nil)
+(setq indent-region-function 'indent-according-to-mode)
+;; using the function; indent-region(M-C-\), will indent a specific region
+;; so you have to use visual mode to indent lines with it.
+
+;; this function indent the whole buffer without specifiying a region
+(defun indent-buffer ()
+  "Indent the entire buffer according to the current major mode."
+  (interactive)
+  (indent-region (point-min) (point-max)))
+(global-set-key (kbd "C-c i") #'indent-buffer)
+
+
+;;; semicolon newline disable
+(setq c-electric-semicolon nil)
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lsp mode
@@ -823,31 +1050,32 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; The dotes in the spaces
-	    ;; (require 'whitespace)
+	    (require 'whitespace)
 
-	    ;; (setq whitespace-display-mappings
-	    ;; 	'((space-mark ?\  [183] [46])          ; space → ·
-	    ;; 	    (tab-mark   ?\t [183 183 183 183 183 183 183 183]    ; tab → "········"
-	    ;; 			[46 46 46 46]))          ; fallback "........"
-	    ;; )
+	    (setq whitespace-display-mappings
+		'((space-mark ?\  [183] [46])          ; space → ·
+		    (tab-mark   ?\t [183 183 183 183 183 183 183 183]    ; tab → "········"
+				[46 46 46 46]))          ; fallback "........"
+	    )
 ;; the number 183 is unicode for middle dot
 ;; the number 46  is ASCII dot
 ;; the fullback is the dot that is used if emacs doesn't supprot
 ;; unicode.
 
 
-	    ;; (setq whitespace-style '(face spaces tabs trailing space-mark tab-mark))
+	    (setq whitespace-style '(face spaces tabs trailing space-mark tab-mark))
 
-	    ;; (custom-set-faces
-	    ;; ;; custom-set-faces was added by Custom.
-	    ;; ;; If you edit it by hand, you could mess it up, so be careful.
-	    ;; ;; Your init file should contain only one such instance.
-	    ;; ;; If there is more than one, they won't work right.
-	    ;; '(whitespace-space ((t (:foreground "gray17"))))
-	    ;; '(whitespace-tab ((t (:foreground "gray17"))))
-	    ;; '(whitespace-trailing ((t (:foreground "gray17")))))
+	    
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(whitespace-space ((t (:foreground "gray17"))))
+ '(whitespace-tab ((t (:foreground "gray17"))))
+ '(whitespace-trailing ((t (:foreground "gray17")))))
 
-	    ;; (global-whitespace-mode 1)
+	    (global-whitespace-mode 1)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -1018,29 +1246,8 @@
      "5a4cdc4365122d1a17a7ad93b6e3370ffe95db87ed17a38a94713f6ffe0d8ceb"
      default))
  '(helm-minibuffer-history-key "M-p")
- '(package-selected-packages
-   '(almost-mono-themes auto-complete blacken cmake-font-lock cmake-ide
-			command-log-mode company counsel-projectile
-			cpputils-cmake creamsody-theme csproj-mode
-			dap-mode darktooth-theme dired-hide-dotfiles
-			doom-modeline doom-themes dracula-theme
-			eldoc-cmake eterm-256color evil-collection
-			evil-mc evil-org exec-path-from-shell
-			flatland-theme flycheck general go-projectile
-			gruber-darker-theme helm-org-ql helpful
-			ivy-rich lsp-origami lsp-ui mustang-theme
-			nord-theme org-bullets project-cmake pyvenv
-			quelpa-use-package rainbow-delimiters treemacs
-			undo-fu undo-fu-session validate-html
-			visual-fill-column vterm-toggle
-			web-completion-data web-mode yaml yaml-mode
-			yasnippet zenburn-theme))
+ '(package-selected-packages nil)
  '(package-vc-selected-packages nil))
 
 (put 'upcase-region 'disabled nil)
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+
