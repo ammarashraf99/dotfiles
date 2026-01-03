@@ -1,3 +1,4 @@
+
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
@@ -21,8 +22,6 @@ source "${ZINIT_HOME}/zinit.zsh"
 # Add in Powerlevel10k
 zinit ice depth=1; zinit light romkatv/powerlevel10k
 
-
-typeset -g POWERLEVEL9K_SHORTEN_STRATEGY=truncate_to_last
 
 # Add in zsh plugins
 zinit light zsh-users/zsh-syntax-highlighting
@@ -99,4 +98,26 @@ alias gdb='gdb -q'
 
 alias hdmi_open='lspci | grep VGA'
 
+# removes the direcotry icon
+POWERLEVEL9K_DIR_CLASSES=()
+
+
+typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VIINS_CONTENT_EXPANSION='$'
+
+# The list of segments shown on the left. Fill it with the most important segments.
+typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(
+    dir                     # current directory
+    vcs                     # git status
+    prompt_char             # prompt symbol
+  )
+
+# The list of segments shown on the right. Fill it with less important segments.
+# Right prompt on the last prompt line (where you are typing your commands) gets
+# automatically hidden when the input line reaches it. Right prompt above the
+# last prompt line gets hidden if it would overlap with left prompt.
+typeset -g POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(
+    status                  # exit code of the last command
+    command_execution_time  # duration of the last command
+    background_jobs         # presence of background jobs
+)
 
