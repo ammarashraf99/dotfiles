@@ -16,6 +16,58 @@
 (setq backup-directory-alist            '((".*" . "~/.Trash")))
 
 
+;;;;; modeline shit ;;;;;;;;
+;; minimal
+
+;; Enable display time in modeline
+(setq display-time-24hr-format t)
+(setq display-time-default-load-average nil)
+(display-time-mode 1)
+(setq display-time-format " %a %R ")
+
+;; Remove code action
+(setq lsp-modeline-code-actions-enable nil)
+(setq lsp-modeline-diagnostics-enable t)
+
+;; Add the column number to modeline
+(column-number-mode 1)
+
+;; Remove those modes from modeline
+(defun my/clean-modeline ()
+  (dolist (mode '(eldoc-mode
+		  projectile-mode
+		  which-key-mode
+		  whitespace-mode
+                  auto-revert-mode
+		  ivy-mode
+		  evil-collection-unimpaired-mode
+		  hs-minor-mode
+		  lsp-lens-mode
+		  yas-minor-mode
+		  evil-mc-mode
+                  flymake-mode))
+    (setq minor-mode-alist
+          (assq-delete-all mode minor-mode-alist))))
+;; call it after startup
+(add-hook 'emacs-startup-hook #'my/clean-modeline)
+;; call it after major mode change
+(add-hook 'after-change-major-mode-hook #'my/clean-modeline)
+
+;; character count
+(defun my/modeline-region-count ()
+  "Return the number of characters in the active region for the modeline."
+  (if (use-region-p)
+      (format "   %d C" (1+ (abs (- (region-end) (region-beginning)))) )
+    ""))
+
+;; Add the function to your mode-line-format
+(setq-default mode-line-format
+              (append mode-line-format
+                      '((:eval (my/modeline-region-count)))))
+
+
+
+
 ;; This saves the buffer automatically before any compile command
 (advice-add 'compile :before (lambda (&rest _) (save-buffer)))
 
@@ -45,9 +97,10 @@
 (global-display-line-numbers-mode t)
 
 ;; Font and size
-(set-face-attribute 'default nil :font "HackNerdFont" :height 125)
-;;Fonts
-;;FiraMonoNerdFont
+(set-face-attribute 'default nil :font "IosevkaNerdFont" :height 135)
+;; My fav Fonts
+;; UbuntuMonoNerdFont
+;; HackNerdFont
 
 
 ;; Make ESC quit prompts
@@ -111,7 +164,7 @@
 
 (mapc #'disable-theme custom-enabled-themes)
 (load-theme 'gruber-darker t)
-;; gruber-darker darktooth-dark
+;; gruber-darker catppuccin darktooth-dark
 ;; almost-mono-gray almost-mono-black
 ;; nord
 ;; nord gruber-darker mustang
@@ -154,7 +207,8 @@
   (setq org-agenda-files
 	'(
 	  "/home/ammar/programming/TODOs/Periodics.org"
-	  "/home/ammar/programming/TODOs/Today.org"))
+	  "/home/ammar/programming/TODOs/Today.org"
+	  "/home/ammar/programming/TODOs/Week.org"))
 
   ;;THIS IS HOW TO CREATE NEW TASK STATES
   (setq org-todo-keywords
@@ -167,7 +221,7 @@
 	  (sequence "MONTHLY(m@/!)" "|" "DONE(d!)")
 	  )
 	)
-)
+  )
 
 (defun efs/org-mode-setup()
   (visual-line-mode 1)
@@ -297,31 +351,31 @@
 
 
 (setq org-capture-templates
-    `(("t" "Tasks / Projects")
-      ("tt" "Task" entry (file+olp "/home/ammar/programming/TODOs/Today.org" "Inbox")
-       "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
+      `(("t" "Tasks / Projects")
+	("tt" "Task" entry (file+olp "/home/ammar/programming/TODOs/Today.org" "Inbox")
+	 "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
 
-      ("r" "Random...")
-      ("rr" "Random" entry (file+olp "/home/ammar/programming/TODOs/Random.org" "Random Ideas !!")
-       "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
+	("r" "Random...")
+	("rr" "Random" entry (file+olp "/home/ammar/programming/TODOs/Random.org" "Random Ideas !!")
+	 "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
 
-      ("j" "Journal Entries")
-      ("jj" "Journal" entry
-           (file+olp+datetree "~/Projects/Code/emacs-from-scratch/OrgFiles/Journal.org")
-           "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
-           ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
-           :clock-in :clock-resume
-           :empty-lines 1)
-      ("jm" "Meeting" entry
-           (file+olp+datetree "~/Projects/Code/emacs-from-scratch/OrgFiles/Journal.org")
-           "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
-           :clock-in :clock-resume
-           :empty-lines 1)
+	("j" "Journal Entries")
+	("jj" "Journal" entry
+         (file+olp+datetree "~/Projects/Code/emacs-from-scratch/OrgFiles/Journal.org")
+         "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
+         ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
+         :clock-in :clock-resume
+         :empty-lines 1)
+	("jm" "Meeting" entry
+         (file+olp+datetree "~/Projects/Code/emacs-from-scratch/OrgFiles/Journal.org")
+         "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
+         :clock-in :clock-resume
+         :empty-lines 1)
 
-      ("w" "Workflows")
-      ("we" "Checking Email" entry (file+olp+datetree "~/Projects/Code/emacs-from-scratch/OrgFiles/Journal.org")
-           "* Checking Email :email:\n\n%?" :clock-in :clock-resume :empty-lines 1)
-      ))
+	("w" "Workflows")
+	("we" "Checking Email" entry (file+olp+datetree "~/Projects/Code/emacs-from-scratch/OrgFiles/Journal.org")
+         "* Checking Email :email:\n\n%?" :clock-in :clock-resume :empty-lines 1)
+	))
 
 ;;;;;;;;;;;;;;;
 ;; Org babel ;;
@@ -366,7 +420,7 @@
   :quelpa (ob-csharp
            :fetcher github
            :repo "samwdp/ob-csharp")
-)
+  )
 
 
 (with-eval-after-load 'org
@@ -464,6 +518,14 @@
   (mu4e t) ;; run mu4e in the background to sync mail periodically
   )
 
+(setq mu4e-bookmarks
+      '((:name "Unread messages" :query "flag:unread AND NOT flag:trashed"
+	       :key 117)
+	(:name "Today's messages" :query "date:today..now" :key 116 :favorite t)
+	(:name "Last 7 days" :query "date:7d..now" :hide-unread t :key 119)
+	(:name "Messages with images" :query "mime:image/*" :key 112)
+	))
+
 
 (setq message-send-mail-function 'smtpmail-send-it)
 (setq smtpmail-stream-type 'ssl)
@@ -478,9 +540,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun efs/lookup-password (&rest keys)
   (let ((result (apply #'auth-source-search keys)))
-		(if result
-			(funcall (plist-get (car result) :secret))
-		  nil)))
+    (if result
+	(funcall (plist-get (car result) :secret))
+      nil)))
 
 
 
@@ -577,9 +639,9 @@
   :config
   (ivy-mode 1))
 
-(use-package doom-modeline
- :ensure t
- :init (doom-modeline-mode 1))
+;; (use-package doom-modeline
+;;  :ensure t
+;;  :init (doom-modeline-mode 1))
 
 
 (use-package which-key
@@ -618,13 +680,6 @@
 ;;(setq compile-command "LD_LIBRARY_PATH=/usr/local/lib64 make && ./main")
 (setq compile-command nil)
 
-(setq display-time-24hr-format t)
-
-(setq display-time-default-load-average nil)
-
-(display-time-mode 1)
-
-(setq display-time-format " %a %R ")
 
 (add-to-list 'image-types 'svg)
 
@@ -926,6 +981,8 @@
 
 ;;(global-set-key (kbd "C-=") 'text-scale-increase)
 (global-set-key (kbd "C-<tab>") 'completion-at-point)  ;; fricken gooooood (life saver)
+;; if you use emacs -nw (emacs in terminal), use C-M-i instead of the C-<tab>, because it won't work
+
 (setq lsp-completion-provider :none) ;; make sure this shit is none
 
 ;; chick https://emacs-lsp.github.io/lsp-mode/tutorials/how-to-turn-off/
@@ -942,7 +999,6 @@
 (setq lsp-completion-show-kind nil)
 (setq lsp-enable-links nil)
 (setq lsp-enable-on-type-formatting nil)
-(setq lsp-modeline-diagnostics-enable nil)
 (setq lsp-diagnostics-provider :auto)
 (setq flycheck-check-syntax-automatically '(idle-change)) ;; don't forget to install flycheck package
 
@@ -1050,22 +1106,22 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; The dotes in the spaces
-	    (require 'whitespace)
+(require 'whitespace)
 
-	    (setq whitespace-display-mappings
-		'((space-mark ?\  [183] [46])          ; space → ·
-		    (tab-mark   ?\t [183 183 183 183 183 183 183 183]    ; tab → "········"
-				[46 46 46 46]))          ; fallback "........"
-	    )
+(setq whitespace-display-mappings
+      '((space-mark ?\  [183] [46])          ; space → ·
+	(tab-mark   ?\t [183 183 183 183 183 183 183 183]    ; tab → "········"
+		    [46 46 46 46]))          ; fallback "........"
+      )
 ;; the number 183 is unicode for middle dot
 ;; the number 46  is ASCII dot
 ;; the fullback is the dot that is used if emacs doesn't supprot
 ;; unicode.
 
 
-	    (setq whitespace-style '(face spaces tabs trailing space-mark tab-mark))
+(setq whitespace-style '(face spaces tabs trailing space-mark tab-mark))
 
-	    
+
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -1075,7 +1131,7 @@
  '(whitespace-tab ((t (:foreground "gray17"))))
  '(whitespace-trailing ((t (:foreground "gray17")))))
 
-	    (global-whitespace-mode 1)
+(global-whitespace-mode 1)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -1195,7 +1251,6 @@
 
 
 
-
 ;; to be able to jump to definitions
 
 ;;(setq lsp-pylsp-plugins-jedi-use-pyenv-environment t)  ;; Ensure Jedi uses the correct env
@@ -1241,7 +1296,9 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   '("8f5b54bf6a36fe1c138219960dd324aad8ab1f62f543bed73ef5ad60956e36ae"
+   '("8c7e832be864674c220f9a9361c851917a93f921fedb7717b1b5ece47690c098"
+     "2d74de1cc32d00b20b347f2d0037b945a4158004f99877630afc034a674e3ab7"
+     "8f5b54bf6a36fe1c138219960dd324aad8ab1f62f543bed73ef5ad60956e36ae"
      "23e9480ad7fd68bff64f6ecf3c31719c7fe2a34c11f8e27206cd998739f40c84"
      "5a4cdc4365122d1a17a7ad93b6e3370ffe95db87ed17a38a94713f6ffe0d8ceb"
      default))
