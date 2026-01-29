@@ -23,7 +23,7 @@
 (setq display-time-24hr-format t)
 (setq display-time-default-load-average nil)
 (display-time-mode 1)
-(setq display-time-format " %a %R ")
+(setq display-time-format " %b %d   %a %R ")
 
 ;; Remove code action
 (setq lsp-modeline-code-actions-enable nil)
@@ -104,8 +104,8 @@
 
 
 ;; Make ESC quit prompts
-(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-(global-set-key (kbd "C-x j") 'counsel-switch-buffer)
+(global-set-key (kbd "C-g") 'keyboard-escape-quit)
+
 
 ;; Clear increase text size and decrease
 (global-set-key (kbd "C-=") 'text-scale-increase)
@@ -153,6 +153,9 @@
   :config
   (evil-collection-init)
   )
+
+(setq evil-want-minibuffer t)
+
 
 ;;; Themes shit
 
@@ -331,7 +334,8 @@
 
 
 
-(global-set-key (kbd "C-c q") #'counsel-org-tag)
+;; (global-set-key (kbd "C-c q") #'counsel-org-tag)
+
 ;; commands for tags (counsel-org-tag, org-set-tags-command)
 ;; known tags
 ;; (setq org-tag-alist
@@ -611,37 +615,54 @@
 
 (use-package command-log-mode)
 
-(use-package counsel
-  :bind (("M-x" . counsel-M-x)
-	 ("C-x b" . counsel-ibuffer)
-	 ("C-x C-f" . counsel-find-file)
-	 :map minibuffer-local-map
-	 ("C-r" . 'counsel-minibuffer-history))
-  :config
-  (setq ivy-initial-inputs-alist nil )) ;; Don't start searches with ^
+(fido-mode 1)
+
+(with-eval-after-load 'evil
+  (evil-define-key 'insert minibuffer-local-map
+    (kbd "C-n") 'icomplete-forward-completions
+    (kbd "C-p") 'icomplete-backward-completions))
 
 
-(use-package ivy
-  :diminish
-  :bind (("C-s" . swiper)
-	 :map ivy-minibuffer-map
-	 ("TAB" . ivy-alt-done)
-	 ("C-l" . ivy-alt-done)
-	 ("C-j" . ivy-next-line)
-	 ("C-k" . ivy-previous-line)
-	 :map ivy-switch-buffer-map
-	 ("C-k" . ivy-previous-line)
-	 ("C-l" . ivy-done)
-	 ("C-d" . ivy-switch-buffer-kill)
-	 :map ivy-reverse-i-search-map
-	 ("C-k" . ivy-previous-line)
-	 ("C-d" . ivy-reverse-i-search-kill))
-  :config
-  (ivy-mode 1))
+;; (use-package counsel
+;;   :bind (("M-x" . counsel-M-x)
+;; 	 ("C-x b" . counsel-ibuffer)
+;; 	 ("C-x C-f" . counsel-find-file)
+;; 	 :map minibuffer-local-map
+;; 	 ("C-r" . 'counsel-minibuffer-history))
+;;   :config
+;;   (setq ivy-initial-inputs-alist nil )) ;; Don't start searches with ^
+
+
+;; (use-package ivy
+;;   :diminish
+;;   :bind (("C-s" . swiper)
+;; 	 :map ivy-minibuffer-map
+;; 	 ("TAB" . ivy-alt-done)
+;; 	 ("C-l" . ivy-alt-done)
+;; 	 ("C-j" . ivy-next-line)
+;; 	 ("C-k" . ivy-previous-line)
+;; 	 :map ivy-switch-buffer-map
+;; 	 ("C-k" . ivy-previous-line)
+;; 	 ("C-l" . ivy-done)
+;; 	 ("C-d" . ivy-switch-buffer-kill)
+;; 	 :map ivy-reverse-i-search-map
+;; 	 ("C-k" . ivy-previous-line)
+;; 	 ("C-d" . ivy-reverse-i-search-kill))
+;;   :config
+;;   (ivy-mode 1))
 
 ;; (use-package doom-modeline
 ;;  :ensure t
 ;;  :init (doom-modeline-mode 1))
+
+
+(use-package corfu
+  :init
+  (global-corfu-mode))
+
+;; (setq corfu-auto t)          ;; auto popup
+;; (setq corfu-cycle t)         ;; cycle candidates
+;; (setq corfu-quit-no-match t)
 
 
 (use-package which-key
