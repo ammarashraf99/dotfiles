@@ -622,6 +622,10 @@
     (kbd "C-n") 'icomplete-forward-completions
     (kbd "C-p") 'icomplete-backward-completions))
 
+(custom-set-faces
+ '(icomplete-first-match
+   ((t (:foreground "gold" :weight normal)))))
+
 
 ;; (use-package counsel
 ;;   :bind (("M-x" . counsel-M-x)
