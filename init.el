@@ -1,5 +1,17 @@
 (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
 
+;; -i interactive, -c run command
+;; bash will run bash -ic "command"
+;; when you use the compile command buffer, it will load your zshrc
+(setq shell-file-name "/bin/zsh")
+(setq shell-command-switch "-ic")
+
+
+;; (setq package-vc-allow-build-commands t)
+;;  (use-package reader
+;;     :vc (:url "https://codeberg.org/divyaranjan/emacs-reader"
+;;   	    :make "all"))
+
 
 (setq inhibit-startup-message t)
 (scroll-bar-mode -1)		;; Disable visible scrollbar
@@ -16,16 +28,40 @@
 (setq backup-directory-alist            '((".*" . "~/.Trash")))
 
 
+;; pdf shit
+(use-package pdf-tools
+  :ensure t
+  :config
+  (pdf-tools-install))
+
+(setq savehist-additional-variables
+      '(kill-ring register-alist))
+(savehist-mode 1)
+
+;; for continuous scroll ---> https://github.com/dalanicolai/image-roll.el
+;; (add-to-list 'load-path "~/.emacs.d/image-roll.el")
+;; (require 'image-roll)
+;;  After successful installation, from a pdf buffer do M-x pdf-view-roll-minor-mode to toggle displaying using the image roll.
+
+
 ;;;;; modeline shit ;;;;;;;;
 ;; minimal
 
 ;; Enable display time in modeline
 (setq display-time-24hr-format t)
 (setq display-time-default-load-average nil)
-(display-time-mode 1)
 (setq display-time-format " %b %d   %a %R ")
 
+;; disable mail completely
+(setq display-time-mail-function nil)
+(setq display-time-mail-file nil)
+(setq display-time-use-mail-icon nil)
+
+(display-time-mode 1)
+
+
 ;; Remove code action
+
 (setq lsp-modeline-code-actions-enable nil)
 (setq lsp-modeline-diagnostics-enable t)
 
@@ -42,8 +78,11 @@
 		  ivy-mode
 		  evil-collection-unimpaired-mode
 		  hs-minor-mode
+		  abbrev-mode
 		  lsp-lens-mode
 		  yas-minor-mode
+		  company-mode
+		  better-jumper-local-mode
 		  evil-mc-mode
                   flymake-mode))
     (setq minor-mode-alist
@@ -65,11 +104,6 @@
               (append mode-line-format
                       '((:eval (my/modeline-region-count)))))
 
-
-
-
-;; This saves the buffer automatically before any compile command
-(advice-add 'compile :before (lambda (&rest _) (save-buffer)))
 
 ;;(global-hl-line-mode t)
 ;; This is to highlight the line you are on now
@@ -97,14 +131,15 @@
 (global-display-line-numbers-mode t)
 
 ;; Font and size
-(set-face-attribute 'default nil :font "IosevkaNerdFont" :height 135)
+(set-face-attribute 'default nil :font "IosevkaNerdFont" :height 145)
 ;; My fav Fonts
-;; UbuntuMonoNerdFont
+;; IosevkaNerdFont
 ;; HackNerdFont
 
 
 ;; Make ESC quit prompts
-(global-set-key (kbd "C-g") 'keyboard-escape-quit)
+;; don't ever set this shit
+;;(global-set-key (kbd "C-g") 'keyboard-escape-quit)
 
 
 ;; Clear increase text size and decrease
@@ -139,6 +174,7 @@
 ;; it confilicts with a binding. use spc-c to compile
 ;; Compile
 ;; (global-set-key (kbd "M-c") 'compile)
+(global-set-key (kbd "C-c c") #'compile)
 
 ;; Revert Buffer
 (global-set-key (kbd "C-x g r") 'revert-buffer-quick)
@@ -167,7 +203,9 @@
 
 (mapc #'disable-theme custom-enabled-themes)
 (load-theme 'gruber-darker t)
-;; gruber-darker catppuccin darktooth-dark
+
+;; (load-theme 'sexy t)
+;; gruber-darker [ catppuccin (setq catppuccin-flavor 'mocha) ] darktooth-dark
 ;; almost-mono-gray almost-mono-black
 ;; nord
 ;; nord gruber-darker mustang
@@ -232,9 +270,9 @@
 
 (setq org-deadline-warning-days 7)
 
-(global-set-key (kbd "C-c l") #'org-store-link) ;; confilit with lsp-mode
+;; (global-set-key (kbd "C-c l") #'org-store-link) ;; confilit with lsp-mode
 (global-set-key (kbd "C-c a") #'org-agenda)
-(global-set-key (kbd "C-c c") #'org-capture)
+(global-set-key (kbd "C-c t") #'org-capture)
 
 
 (setq org-refile-targets
@@ -394,8 +432,8 @@
    (go . t)
    (csharp . t)
    (jupyter . t)
+   (shell . t)
    ))
-
 
 ;; If you don't find ob-<language>, look for it in
 ;; melpa or any package manager
@@ -435,7 +473,6 @@
 
 
 
-
 ;; so that you can write "<py TAB" and it will write the bounds of your code
 (require 'org-tempo)
 (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
@@ -445,7 +482,8 @@
 (add-to-list 'org-structure-template-alist '("go" . "src go"))
 
 
-
+;; end of org mode
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 ;; Pomodoroooo ??
@@ -479,76 +517,75 @@
 
 
 
-(use-package mu4e
-  :ensure nil
-  :load-path "/usr/share/emacs/site-lisp/elpa-src/mu4e-1.12.9/"
-  :defer 20 ; Wait until 20 seconds after startup
-  :config
+;; (use-package mu4e
+;;   :ensure nil
+;;   :load-path "/usr/share/emacs/site-lisp/elpa-src/mu4e-1.12.9/"
+;;   ;; :defer 20 ; Wait until 20 seconds after startup
+;;   :config
 
-  ;; This is set to 't' to avoid mail syncing issues when using mbsync
-  (setq mu4e-change-filenames-when-moving t)
+;;   ;; This is set to 't' to avoid mail syncing issues when using mbsync
+;;   (setq mu4e-change-filenames-when-moving t)
 
-  ;; Refresh mail using isync every 10 minutes
-  (setq mu4e-update-interval (* 10 60))
-  (setq mu4e-get-mail-command "mbsync -a")
-  (setq mu4e-maildir "~/Mail")
-  (setq mu4e-context-policy 'always-ask)
+;;   ;; Refresh mail using isync every 10 minutes
+;;   (setq mu4e-update-interval (* 10 60))
+;;   (setq mu4e-get-mail-command "mbsync -a")
+;;   (setq mu4e-maildir "~/Mail")
+;;   (setq mu4e-context-policy 'always-ask)
 
-  (setq mu4e-contexts
-        (list
-         (make-mu4e-context
-          :name "Personal"
-          :match-func
-          (lambda (msg)
-            (when msg
-              (string-prefix-p "/Gmail" (mu4e-message-field msg :maildir))))
-          :vars '((user-mail-address . "ammarashraf111@gmail.com")
-                  (user-full-name    . "Ammar Ashraf")
-                  (mu4e-drafts-folder  . "/Gmail/[Gmail]/Drafts")
-                  (mu4e-sent-folder  . "/Gmail/[Gmail]/Sent Mail")
-                  (mu4e-refile-folder  . "/Gmail/[Gmail]/All Mail")
-                  (mu4e-trash-folder  . "/Gmail/[Gmail]/Trash")
-		  )))
-	)
+;;   (setq mu4e-contexts
+;;         (list
+;;          (make-mu4e-context
+;;           :name "Personal"
+;;           :match-func
+;;           (lambda (msg)
+;;             (when msg
+;;               (string-prefix-p "/Gmail" (mu4e-message-field msg :maildir))))
+;;           :vars '((user-mail-address . "ammarashraf111@gmail.com")
+;;                   (user-full-name    . "Ammar Ashraf")
+;;                   (mu4e-drafts-folder  . "/Gmail/[Gmail]/Drafts")
+;;                   (mu4e-sent-folder  . "/Gmail/[Gmail]/Sent Mail")
+;;                   (mu4e-refile-folder  . "/Gmail/[Gmail]/All Mail")
+;;                   (mu4e-trash-folder  . "/Gmail/[Gmail]/Trash")
+;; 		  )))
+;; 	)
 
-  (setq mu4e-maildir-shortcuts
-        '(("/Gmail/Inbox"                   . ?i)
-          ("/Gmail/[Gmail]/Sent Mail" . ?s)
-          ("/Gmail/[Gmail]/Trash"     . ?t)
-          ("/Gmail/[Gmail]/Drafts"    . ?d)
-          ("/Gmail/[Gmail]/All Mail"  . ?a)
-	  ))
-  (server-start)
-  (mu4e t) ;; run mu4e in the background to sync mail periodically
-  )
+;;   (setq mu4e-maildir-shortcuts
+;;         '(("/Gmail/Inbox"                   . ?i)
+;;           ("/Gmail/[Gmail]/Sent Mail" . ?s)
+;;           ("/Gmail/[Gmail]/Trash"     . ?t)
+;;           ("/Gmail/[Gmail]/Drafts"    . ?d)
+;;           ("/Gmail/[Gmail]/All Mail"  . ?a)
+;; 	  ))
+;;   (server-start)
+;;   (mu4e t) ;; run mu4e in the background to sync mail periodically
+;;   )
 
-(setq mu4e-bookmarks
-      '((:name "Unread messages" :query "flag:unread AND NOT flag:trashed"
-	       :key 117)
-	(:name "Today's messages" :query "date:today..now" :key 116 :favorite t)
-	(:name "Last 7 days" :query "date:7d..now" :hide-unread t :key 119)
-	(:name "Messages with images" :query "mime:image/*" :key 112)
-	))
-
-
-(setq message-send-mail-function 'smtpmail-send-it)
-(setq smtpmail-stream-type 'ssl)
-(setq smtpmail-smtp-server "smtp.gmail.com")
-(setq smtpmail-smtp-service 465)
-
-(setq mu4e-compose-format-flowed t)
+;; (setq mu4e-bookmarks
+;;       '((:name "Unread messages" :query "flag:unread AND NOT flag:trashed"
+;; 	       :key 117)
+;; 	(:name "Today's messages" :query "date:today..now" :key 116 :favorite t)
+;; 	(:name "Last 7 days" :query "date:7d..now" :hide-unread t :key 119)
+;; 	(:name "Messages with images" :query "mime:image/*" :key 112)
+;; 	))
 
 
+;; (setq message-send-mail-function 'smtpmail-send-it)
+;; (setq smtpmail-stream-type 'ssl)
+;; (setq smtpmail-smtp-server "smtp.gmail.com")
+;; (setq smtpmail-smtp-service 465)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun efs/lookup-password (&rest keys)
-  (let ((result (apply #'auth-source-search keys)))
-    (if result
-	(funcall (plist-get (car result) :secret))
-      nil)))
+;; (setq mu4e-compose-format-flowed t)
 
 
+
+;; (defun efs/lookup-password (&rest keys)
+;;   (let ((result (apply #'auth-source-search keys)))
+;;     (if result
+;; 	(funcall (plist-get (car result) :secret))
+;;       nil)))
+
+;; end of email shit
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 ;; Language tool
@@ -621,10 +658,20 @@
   (evil-define-key 'insert minibuffer-local-map
     (kbd "C-n") 'icomplete-forward-completions
     (kbd "C-p") 'icomplete-backward-completions))
+(with-eval-after-load 'evil
+  (evil-define-key 'insert minibuffer-local-map
+    (kbd "C-j") 'icomplete-forward-completions
+    (kbd "C-k") 'icomplete-backward-completions))
 
 (custom-set-faces
- '(icomplete-first-match
-   ((t (:foreground "gold" :weight normal)))))
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(icomplete-first-match ((t (:foreground "gold" :weight normal))))
+ '(whitespace-space ((t (:foreground "gray17"))))
+ '(whitespace-tab ((t (:foreground "gray17"))))
+ '(whitespace-trailing ((t (:foreground "gray17")))))
 
 
 ;; (use-package counsel
@@ -767,6 +814,10 @@
   (define-key evil-visual-state-map (kbd "C-r") 'undo-fu-redo))
 
 
+(use-package better-jumper
+  :config
+  (better-jumper-mode +1))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -782,11 +833,43 @@
 (rune/leader-keys
   "ts" '(hydra-text-scale/body :which-key "scale text"))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Add Magit and projectile here
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; projectile
+
+(use-package projectile
+  :diminish projectile-mode
+  :config (projectile-mode)
+  :bind-keymap
+  ("C-c p" . projectile-command-map)
+  :init
+  (when (file-directory-p "~/")
+    (setq projectile-project-search-path '("~/")))
+  (setq projectile-switch-project-action #'project-dired))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Magit
+(use-package magit
+  :commands (magit-status magit-get-current-branch)
+  :custom
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+
+;; Ensure magit is loaded before binding
+(global-set-key (kbd "C-c g") 'magit-status)
+
+(use-package diff-hl)
+(require 'diff-hl)
+(global-diff-hl-mode)
+
+(fringe-mode 10)
+
+(add-hook 'dired-mode-hook #'diff-hl-dired-mode)
+
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -795,7 +878,7 @@
 
 (use-package term
   :config
-  (setq explicit-shell-file-name "bash")
+  (setq explicit-shell-file-name "zsh")
   )
 
 (use-package vterm
@@ -803,12 +886,25 @@
   :commands vterm
   :config
   (add-hook 'vterm-directory-change-hook #'vterm--update-directory)
-  (vterm--set-directory "/home/ammar")
-  (setq default-directory "/home/ammar")
+  ;; (vterm--set-directory "/home/ammar")
+  ;; (setq default-directory "/home/ammar")
   (setq vterm-max-scrollback 10000)
   (setq vterm-kill-buffer-on-exit t))
 
 
+;; (with-eval-after-load 'vterm
+;;   ;; Track the directory of the vterm buffer
+;;   (defun my/vterm-update-directory ()
+;;     "Update `default-directory' of vterm buffer."
+;;     (when (eq major-mode 'vterm-mode)
+;;       (setq-local default-directory
+;;                   (or (getenv "PWD") default-directory))))
+;;   (add-hook 'vterm-mode-hook #'my/vterm-update-directory))
+
+;; (add-hook 'vterm-mode-hook #'vterm-directory-tracking-mode)
+
+(with-eval-after-load 'vterm
+  (define-key vterm-mode-map (kbd "C-c C-d") #'vterm-toggle-insert-cd))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; multi vterm
@@ -1005,7 +1101,7 @@
 
 
 ;;(global-set-key (kbd "C-=") 'text-scale-increase)
-(global-set-key (kbd "C-<tab>") 'completion-at-point)  ;; fricken gooooood (life saver)
+;; (global-set-key (kbd "C-<tab>") 'completion-at-point)  ;; fricken gooooood (life saver) (use company completion)
 ;; if you use emacs -nw (emacs in terminal), use C-M-i instead of the C-<tab>, because it won't work
 
 (setq lsp-completion-provider :none) ;; make sure this shit is none
@@ -1147,14 +1243,7 @@
 (setq whitespace-style '(face spaces tabs trailing space-mark tab-mark))
 
 
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(whitespace-space ((t (:foreground "gray17"))))
- '(whitespace-tab ((t (:foreground "gray17"))))
- '(whitespace-trailing ((t (:foreground "gray17")))))
+
 
 (global-whitespace-mode 1)
 
@@ -1229,7 +1318,15 @@
   :hook (python-mode . blacken-mode))
 
 (use-package company
-  :ensure t)
+  :ensure t
+  :config
+  (global-company-mode))
+
+(setq company-idle-delay nil) ; do not show completions automatically
+(setq company-minimum-prefix-length 1) ; optional, how many chars before completion is triggered
+(global-set-key (kbd "C-<tab>") 'company-complete)  ;; fricken gooooood (life saver)
+
+
 
 (use-package lsp-ui
   :ensure t
@@ -1315,13 +1412,15 @@
 ;; (setq vterm-disable-mouse nil)
 
 
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   '("8c7e832be864674c220f9a9361c851917a93f921fedb7717b1b5ece47690c098"
+   '("21c4c4b7d3ab161aaa28b15ca846854d395c33cfb7c6863ab601adfe10d70ce0"
+     "8c7e832be864674c220f9a9361c851917a93f921fedb7717b1b5ece47690c098"
      "2d74de1cc32d00b20b347f2d0037b945a4158004f99877630afc034a674e3ab7"
      "8f5b54bf6a36fe1c138219960dd324aad8ab1f62f543bed73ef5ad60956e36ae"
      "23e9480ad7fd68bff64f6ecf3c31719c7fe2a34c11f8e27206cd998739f40c84"
@@ -1329,7 +1428,20 @@
      default))
  '(helm-minibuffer-history-key "M-p")
  '(package-selected-packages nil)
- '(package-vc-selected-packages nil))
+ '(package-vc-selected-packages
+   '((batppuccin-mocha-theme :url
+			     "https://github.com/bbatsov/batppuccin-emacs"))))
 
 (put 'upcase-region 'disabled nil)
+
+
+;; ai shit !!!
+(use-package agent-shell
+  :ensure t)
+
+;; (setq agent-shell-model)
+
+
+(use-package lsp-treemacs
+  :after lsp)
 
